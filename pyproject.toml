@@ -1,0 +1,54 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "inline-snapshot-phash"
+version = "0.1.0"
+description = "Perceptual hash storage protocol for inline-snapshot"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+  {name = "Louis Maddox", email = "louismmx@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "inline-snapshot>=0.30.1",
+    "czkawka>=0.1.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/lmmx/inline-snapshot-phash"
+Repository = "https://github.com/lmmx/inline-snapshot-phash"
+Issues = "https://github.com/lmmx/inline-snapshot-phash/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "pdbpp>=0.10.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+addopts = "-v"
+
+[tool.ruff]
+target-version = "py38"
