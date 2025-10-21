@@ -1,7 +1,7 @@
-from pathlib import Path
-from contextlib import contextmanager
-from typing import Generator
 import shutil
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Generator
 
 try:
     import czkawka as cz
@@ -12,8 +12,8 @@ except ImportError:
 
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._storage._protocol import (
-    StorageProtocol,
     StorageLookupError,
+    StorageProtocol,
 )
 
 
@@ -35,6 +35,8 @@ class PerceptualHashStorage(StorageProtocol):
     def new_location(
         self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
+        if not file_path.suffix:
+            raise IOError("Filetype detection not implemented")
         phash = self.finder.hash_image(str(file_path))
         return location.with_stem(phash)
 

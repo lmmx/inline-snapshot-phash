@@ -15,6 +15,13 @@ from zlib import compress, crc32
 import pytest
 from inline_snapshot import external
 
+# --------- CONFTEST
+from inline_snapshot_phash import register_phash_storage
+
+register_phash_storage()  # noqa: F401
+
+# ---------- CONFTEST
+
 
 def fill_png_bytes(w=64, h=64, c=(0, 128, 255)):
     """Generate PNG image bytes with given width, height, and RGB color."""
@@ -57,7 +64,7 @@ def blue_square(tmp_path: Path) -> Path:
 
 def test_red_square(red_square: Path):
     """Basic usage: 100px red square gets a phash."""
-    assert red_square == external("phash:")
+    assert red_square == external("phash:.")
 
 
 def test_blue_square(blue_square: Path):

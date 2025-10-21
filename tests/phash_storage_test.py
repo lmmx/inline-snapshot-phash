@@ -1,7 +1,9 @@
-from pathlib import Path
 import tempfile
-from inline_snapshot_phash import PerceptualHashStorage
+from pathlib import Path
+
 from inline_snapshot._external._external_location import ExternalLocation
+
+from inline_snapshot_phash import PerceptualHashStorage
 
 
 def test_phash_storage_basic():
