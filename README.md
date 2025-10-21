@@ -110,28 +110,14 @@ This protocol deliberately deduplicates perceptually similar images. When `creat
 
 This is the intended behavior: files with the same phash are treated as identical, similar to git's SHA256 content addressing but for perceptual equivalence. For more discussion on this design decision and use cases, see [inline-snapshot discussion #311](https://github.com/15r10nk/inline-snapshot/discussions/311).
 
-## Project Structure
-
-```
-inline-snapshot-phash/
-├── src/
-│   └── inline_snapshot_phash/
-│       ├── __init__.py
-│       └── _storage.py
-├── tests/
-│   └── phash_storage_test.py
-├── pyproject.toml
-└── README.md
-```
-
 ## Contributing
 
 Maintained by [lmmx](https://github.com/lmmx). Contributions welcome!
 
 1. **Issues & Discussions**: Please open a GitHub issue for bugs or feature requests. For design discussions, see the [upstream inline-snapshot discussion #311](https://github.com/15r10nk/inline-snapshot/discussions/311).
 2. **Pull Requests**: PRs are welcome!
-   - Install the dev extra (e.g. with [uv](https://docs.astral.sh/uv/): `uv pip install -e .[dev]`)
-   - Run tests (when available) and include updates to docs or examples if relevant.
+   - Install the dev environment with [uv](https://docs.astral.sh/uv/): `uv sync`
+   - Run tests with `$(uv python find) -m pytest` and include updates to docs or examples if relevant.
    - If reporting a bug, please include the version and the error message/traceback if available.
 
 This is a third-party extension for [inline-snapshot](https://github.com/15r10nk/inline-snapshot).
