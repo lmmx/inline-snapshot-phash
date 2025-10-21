@@ -1,7 +1,7 @@
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Iterator
 
 try:
     import czkawka as cz
@@ -10,11 +10,13 @@ except ImportError:
         "czkawka is required for phash storage. Install with: pip install czkawka"
     )
 
+from inline_snapshot._change import ChangeBase, ExternalRemove
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._storage._protocol import (
     StorageLookupError,
     StorageProtocol,
 )
+from inline_snapshot._global_state import state
 
 
 class PerceptualHashStorage(StorageProtocol):
@@ -64,5 +66,29 @@ class PerceptualHashStorage(StorageProtocol):
         if path.exists():
             path.unlink()
 
-    def sync_used_externals(self, used_externals):
-        raise NotImplementedError("trim not yet implemented for phash storage")
+    def sync_used_externals(
+        self, used_externals: list[ExternalLocation]
+    ) -> Iterator[ChangeBase]:
+        """Find and yield removal actions for unused phash snapshots."""
+        # Get all files currently in phash storage
+        if not self.directory.exists():
+            return
+
+        all_stored = {
+            f.name
+            for f in self.directory.iterdir()
+            if f.is_file() and f.suffix in (".png", ".jpg", ".jpeg")
+        }
+
+        # Extract just the filenames from used externals
+        used_names = {location.path for location in used_externals if location.path}
+
+        # Find unused files (files in storage not referenced in code)
+        unused = all_stored - used_names
+
+        # Yield removal changes if trim flag is set
+        if state().update_flags.trim:
+            for name in unused:
+                yield ExternalRemove(
+                    "trim", ExternalLocation.from_name(f"phash:{name}")
+                )
