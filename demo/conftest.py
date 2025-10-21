@@ -1,0 +1,3 @@
+from inline_snapshot_phash import register_phash_storage
+
+register_phash_storage()  # noqa: F401
