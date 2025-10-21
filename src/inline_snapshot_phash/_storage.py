@@ -1,7 +1,7 @@
-from pathlib import Path
-from contextlib import contextmanager
-from typing import Generator
 import shutil
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Generator, Iterator
 
 try:
     import czkawka as cz
@@ -10,11 +10,13 @@ except ImportError:
         "czkawka is required for phash storage. Install with: pip install czkawka"
     )
 
+from inline_snapshot._change import ChangeBase, ExternalRemove
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._storage._protocol import (
-    StorageProtocol,
     StorageLookupError,
+    StorageProtocol,
 )
+from inline_snapshot._global_state import state
 
 
 class PerceptualHashStorage(StorageProtocol):
@@ -35,7 +37,13 @@ class PerceptualHashStorage(StorageProtocol):
     def new_location(
         self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
-        phash = self.finder.hash_image(str(file_path))
+        # I don't understand why this PNG file path appears to have been hashed
+        # (Pdb++) p file_path
+        # PosixPath('/tmp/inline-snapshot-n1v6noil/tmp-path-bec195a3-9a6c-4a9a-bf72-7e7fa967c830')
+        # For now just copy the file (cannot symlink, it gets resolved)
+        tmp_with_ext = file_path.with_suffix(".png")
+        shutil.copy(file_path, tmp_with_ext)
+        phash = self.finder.hash_image(str(tmp_with_ext))
         return location.with_stem(phash)
 
     def store(self, location: ExternalLocation, file_path: Path):
@@ -58,5 +66,29 @@ class PerceptualHashStorage(StorageProtocol):
         if path.exists():
             path.unlink()
 
-    def sync_used_externals(self, used_externals):
-        raise NotImplementedError("trim not yet implemented for phash storage")
+    def sync_used_externals(
+        self, used_externals: list[ExternalLocation]
+    ) -> Iterator[ChangeBase]:
+        """Find and yield removal actions for unused phash snapshots."""
+        # Get all files currently in phash storage
+        if not self.directory.exists():
+            return
+
+        all_stored = {
+            f.name
+            for f in self.directory.iterdir()
+            if f.is_file() and f.suffix in (".png", ".jpg", ".jpeg")
+        }
+
+        # Extract just the filenames from used externals
+        used_names = {location.path for location in used_externals if location.path}
+
+        # Find unused files (files in storage not referenced in code)
+        unused = all_stored - used_names
+
+        # Yield removal changes if trim flag is set
+        if state().update_flags.trim:
+            for name in unused:
+                yield ExternalRemove(
+                    "trim", ExternalLocation.from_name(f"phash:{name}")
+                )

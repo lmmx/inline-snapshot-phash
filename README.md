@@ -23,9 +23,6 @@ Perceptual hash storage protocol for inline-snapshot.
 pip install inline-snapshot-phash
 ```
 
-> The `czkawka` dependency (>= 0.1.1) is required for perceptual hash computation.
-> This package requires `inline-snapshot` >= 0.30.1.
-
 ### Requirements
 
 - Python 3.8+
@@ -39,7 +36,7 @@ Register the storage protocol in your `conftest.py`:
 ```python
 from inline_snapshot_phash import register_phash_storage
 
-register_phash_storage()
+register_phash_storage()  # noqa: F401
 ```
 
 Then use the `phash:` protocol in your tests:
@@ -62,6 +59,19 @@ def test_image_output():
 ```
 
 The image is archived at `.inline-snapshot/phash/8LS0tOSwvLQ.png`, and subsequent test runs compare perceptual hashes without loading the image file.
+
+## Demo
+
+A minimal demo test suite is provided in `demo/demo_test.py` showing the three core behaviors:
+
+- basic phash snapshot creation
+- different images producing different hashes
+  - The `test_red_square` and `test_blue_square` tests produce different snapshots.
+- identical images sharing archived storage (one-to-many behavior).
+  - The `test_red_square` and `test_red_square_tiny` tests produce the same snapshot because the
+    2px wide square PNG has the same perceptual hash as the 100px one.
+
+Run `pytest --inline-snapshot=create demo/demo_test.py` to see it in action.
 
 ## How It Works
 
