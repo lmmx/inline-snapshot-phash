@@ -41,9 +41,12 @@ class PerceptualHashStorage(StorageProtocol):
         # (Pdb++) p file_path
         # PosixPath('/tmp/inline-snapshot-n1v6noil/tmp-path-bec195a3-9a6c-4a9a-bf72-7e7fa967c830')
         # For now just copy the file (cannot symlink, it gets resolved)
-        tmp_with_ext = file_path.with_suffix(".png")
-        shutil.copy(file_path, tmp_with_ext)
-        phash = self.finder.hash_image(str(tmp_with_ext))
+        if file_path.suffix:
+            phash = self.finder.hash_image(file_path)
+        else:
+            tmp_with_ext = file_path.with_suffix(".png")
+            shutil.copy(file_path, tmp_with_ext)
+            phash = self.finder.hash_image(tmp_with_ext)
         return location.with_stem(phash)
 
     def store(self, location: ExternalLocation, file_path: Path):
