@@ -35,9 +35,13 @@ class PerceptualHashStorage(StorageProtocol):
     def new_location(
         self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
-        if not file_path.suffix:
-            raise IOError("Filetype detection not implemented")
-        phash = self.finder.hash_image(str(file_path))
+        # I don't understand why this PNG file path appears to have been hashed
+        # (Pdb++) p file_path
+        # PosixPath('/tmp/inline-snapshot-n1v6noil/tmp-path-bec195a3-9a6c-4a9a-bf72-7e7fa967c830')
+        # For now just copy the file (cannot symlink, it gets resolved)
+        tmp_with_ext = file_path.with_suffix(".png")
+        shutil.copy(file_path, tmp_with_ext)
+        phash = self.finder.hash_image(str(tmp_with_ext))
         return location.with_stem(phash)
 
     def store(self, location: ExternalLocation, file_path: Path):

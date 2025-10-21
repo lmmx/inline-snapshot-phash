@@ -64,7 +64,7 @@ def blue_square(tmp_path: Path) -> Path:
 
 def test_red_square(red_square: Path):
     """Basic usage: 100px red square gets a phash."""
-    assert red_square == external("phash:.")
+    assert red_square == external("phash:")
 
 
 def test_blue_square(blue_square: Path):
