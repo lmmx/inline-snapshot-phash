@@ -23,19 +23,39 @@ register_phash_storage()  # noqa: F401
 # ---------- CONFTEST
 
 
-def fill_png_bytes(w=64, h=64, c=(0, 128, 255)):
-    """Generate PNG image bytes with given width, height, and RGB color."""
+def _png_from_rows(w, h, row_generator):
+    """Build PNG bytes from a row generator function."""
 
     def chk(t, d):
         return pack("!I", len(d)) + t + d + pack("!I", crc32(t + d) & 0xFFFFFFFF)
 
-    raw = b"".join(b"\0" + bytes(c) * w for _ in range(h))
+    raw = b"".join(b"\0" + row_generator(y) for y in range(h))
     return (
         b"\x89PNG\r\n\x1a\n"
         + chk(b"IHDR", pack("!2I5B", w, h, 8, 2, 0, 0, 0))
         + chk(b"IDAT", compress(raw))
         + chk(b"IEND", b"")
     )
+
+
+def fill_png_bytes(w=64, h=64, c=(0, 128, 255)):
+    """Generate PNG image bytes with solid color fill."""
+    return _png_from_rows(w, h, lambda y: bytes(c) * w)
+
+
+def checkerboard_png_bytes(w=64, h=64, cell_size=8, c1=(0, 0, 0), c2=(255, 255, 255)):
+    """Generate PNG image bytes with checkerboard pattern."""
+
+    def row(y):
+        checker_y = y // cell_size
+        pixels = []
+        for x in range(w):
+            checker_x = x // cell_size
+            color = c1 if (checker_x + checker_y) % 2 == 0 else c2
+            pixels.extend(color)
+        return bytes(pixels)
+
+    return _png_from_rows(w, h, row)
 
 
 @pytest.fixture
@@ -55,10 +75,10 @@ def red_square_tiny(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def blue_square(tmp_path: Path) -> Path:
-    """Create a blue 100px square PNG image."""
-    img_path = tmp_path / "blue_square.png"
-    img_path.write_bytes(fill_png_bytes(100, 100, (0, 0, 255)))
+def checkerboard(tmp_path: Path) -> Path:
+    """Create a 64x64 checkerboard with 8px cells (different pattern)."""
+    img_path = tmp_path / "checkerboard.png"
+    img_path.write_bytes(checkerboard_png_bytes(64, 64, cell_size=8))
     return img_path
 
 
@@ -67,12 +87,12 @@ def test_red_square(red_square: Path):
     assert red_square == external("phash:")
 
 
-def test_blue_square(blue_square: Path):
+def test_checkerboard(checkerboard: Path):
     """Different image gets different phash."""
-    assert blue_square == external("phash:")
+    assert checkerboard == external("phash:")
 
 
-def test_red_square_again(red_square: Path):
+def test_red_square_again(red_square_tiny: Path):
     """Same image at different resolution shares the same phash (one-to-many behavior).
 
     Note: either this test will save its output or the `test_red_square` snapshot will,
