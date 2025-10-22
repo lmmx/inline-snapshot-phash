@@ -38,11 +38,10 @@ release bump_level="patch":
     # 🚀 Push the commit tag to the remote
     git push origin "py-$new_version"
 
-ship-wheels *dl_args:
+ship-wheels:
   mkdir -p dist
   rm -rf dist/*
-  gh run download -p wheel* {{dl_args}}
-  mv wheel*/* dist/
-  rm -rf wheel*
+  uv build
+  rm dist/.gitignore 2>/dev/null
   just publish --no-build
   rm -rf dist/*
