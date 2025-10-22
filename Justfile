@@ -27,6 +27,9 @@ ruff-check:
       --exclude ".git/|.venv/|site/|.pdm-build|target/|.json$|.lock$" \
       .
 
+demo *args:
+    $(uv python find) -m pytest demo/ {{args}}
+
 test *args:
     $(uv python find) -m pytest {{args}}
 
