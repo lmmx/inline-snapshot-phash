@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "inline-snapshot-phash"
-version = "0.1.0"
+version = "0.1.1"
 description = "Perceptual hash storage protocol for inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
