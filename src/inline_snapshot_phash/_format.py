@@ -12,6 +12,7 @@ class ImageFormat(BinaryDiff, Format[bytes]):
 
     # File extension may vary (e.g., .png, .txt), but pHash doesn't care
     suffix = ".ph"
+    priority = 10
 
     @staticmethod
     def is_format_for(data: object) -> bool:

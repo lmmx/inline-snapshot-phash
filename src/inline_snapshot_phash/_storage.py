@@ -55,10 +55,7 @@ class PerceptualHashStorage(StorageProtocol):
     def new_location(
         self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
-        # I don't understand why this PNG file path appears to have been hashed
-        # (Pdb++) p file_path
-        # PosixPath('/tmp/inline-snapshot-n1v6noil/tmp-path-bec195a3-9a6c-4a9a-bf72-7e7fa967c830')
-        # For now just copy the file (cannot symlink, it gets resolved)
+        # file_path is a temp file containing the bytes
         if file_path.suffix and file_path.suffix != ".ph":
             phash = self.finder.hash_image(file_path)
         else:
