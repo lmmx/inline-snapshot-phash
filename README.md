@@ -11,16 +11,21 @@ Perceptual hash storage protocol for inline-snapshot.
 
 ## Features
 
-- **Perceptual hashing for content-based addressing**: Images are stored and identified by their perceptual hash rather than exact byte matching
-- **Automatic deduplication**: Perceptually identical images (e.g., same content in different formats) share a single archived file
+- **Perceptual hashing for perceptual content-based addressing**: Images are stored and identified by their perceptual hash rather than exact byte matching
+- **Automatic deduplication**: Perceptually identical images (e.g., same content in different formats or at different sizes) share a single archived file
 - **Fast hash comparison**: Test runs compare hash strings without loading images from disk
 - **Archived files for inspection**: Original images remain available for manual visual comparison when outputs change
-- **(Future) Tolerance-based comparison**: Support for near-matches within a configurable similarity threshold
+
+## Future Plans
+
+- **Tolerance-based comparison**: Support for near-matches within a configurable similarity threshold
+- **Store metadata as context**: The real source filename that was stored could be kept as metadata
+  in addition to the archived file
 
 ## Installation
 
 ```bash
-pip install inline-snapshot-phash
+uv pip install inline-snapshot-phash
 ```
 
 ### Requirements
@@ -62,6 +67,8 @@ The image is archived at `.inline-snapshot/phash/8LS0tOSwvLQ.png`, and subsequen
 
 ## Demo
 
+- !!! **WIP**: non-functioning / proof of concept creation in progress !!!
+
 A minimal demo test suite is provided in `demo/demo_test.py` showing the three core behaviors:
 
 - basic phash snapshot creation
@@ -75,11 +82,14 @@ Run `pytest --inline-snapshot=create demo/demo_test.py` to see it in action.
 
 ## How It Works
 
-### Property-Based Similarity
+### Visual Property-Based Similarity
 
-Traditional snapshot testing assumes deterministic processes that produce byte-identical outputs. The `phash:` protocol instead snapshots based on perceptual similarity—a property of the image content rather than exact byte matching.
+Traditional snapshot testing assumes deterministic processes that produce byte-identical outputs.
 
-For example, if 10 test functions each generate a red square (as PNG, JPG, at different sizes), they all produce the same perceptual hash. One archived image file serves all 10 tests, and hash comparisons pass without redundant storage.
+The `phash:` storage protocol instead snapshots based on perceptual similarity, a property of the image content rather than exact byte matching.
+
+For example, if 10 test functions each generate a red square in different ways (as PNG, JPG, at different sizes, etc.), they all produce the same perceptual hash.
+One archived image file serves all 10 tests, and perceptual hash comparisons will pass without saving redundant copies of this shared image.
 
 ### Storage Flow
 
@@ -96,19 +106,42 @@ On subsequent test runs:
 
 ### Why Both Hash and File?
 
-The hash enables fast comparison during test runs—just string matching, no image loading. The archived file provides a reference for manual visual inspection when test outputs change.
+The hash enables fast comparison during test runs: just string matching, skipping the need for image loading for test fixtures.
 
-For example, in page dewarping optimization (flattening curved book pages from photos), you want to avoid:
-- Constantly reviewing tests when optimization tweaks change outputs slightly (but imperceptibly)
-- Naively accepting snapshot updates without understanding what changed
+The archived file provides a reference for manual visual inspection when test outputs change, but
+deduplication means there should not be multiple copies of the same image if you have similar tests.
+This means you should be able to get the best of both worlds in more situations.
 
-The phash approach separates "did perceptual quality change?" (the test assertion) from "what exactly changed?" (manual inspection of archived images).
+In particular where you want to avoid mass review of snapshot changes when
+minor changes to the process that produced them change your outputs slightly (but imperceptibly),
+which can lead to naively accepting snapshot updates without understanding what changed.
+
+The phash approach separates whether there was a perceptual change from there being any change to the file at all.
 
 ### One-to-Many Behavior
 
-This protocol deliberately deduplicates perceptually similar images. When `create_image2()` changes, you diff against whichever test first generated that hash (e.g., `create_image1()`'s archive), not the last run of `create_image2()`.
+This protocol deliberately deduplicates perceptually similar images.
 
-This is the intended behavior: files with the same phash are treated as identical, similar to git's SHA256 content addressing but for perceptual equivalence. For more discussion on this design decision and use cases, see [inline-snapshot discussion #311](https://github.com/15r10nk/inline-snapshot/discussions/311).
+This is the intended behavior: files with the same phash are treated as identical, unlike git's SHA256 content addressing which will treat any change to the file as different,
+we treat only perceptual difference (as considered by the underlying pHash algorithm).
+
+Consider you have this code:
+
+```python
+def test_1():
+   assert create_image1() == external("phash:1238abe.png")
+
+def test_2():
+   assert create_image2() == external("phash:1238abe.png")
+```
+
+- Both `create_image` functions return similar images but not the exact same (they make the same phash)
+- The result of `create_image2` is never saved because it is similar to `create_image1`
+- You would not spot a file diff (e.g. in git) when the result of `create_image2` changes (e.g. it's the same image but enlarged 10x).
+- You only see anything change when there is **perceptual** difference.
+- When `create_image2()` changes, you diff against whichever test first generated that hash (e.g., `create_image1()`'s archive), not the last run of `create_image2()`.
+
+For more discussion on this design decision and use cases, see [inline-snapshot discussion #311](https://github.com/15r10nk/inline-snapshot/discussions/311).
 
 ## Contributing
 
