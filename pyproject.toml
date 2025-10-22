@@ -31,7 +31,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "inline-snapshot>=0.30.1",
+    "inline-snapshot[black]>=0.30.1",
     "czkawka>=0.1.2",
 ]
 

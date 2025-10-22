@@ -10,8 +10,8 @@ from inline_snapshot import Format, TextDiff, register_format
 class PathFormat(TextDiff, Format[Path]):
     """Format handler for pathlib.Path objects."""
 
-    # Since the suffix may vary (e.g., .png, .txt), we don’t fix it globally.
-    suffix = ""  # allow dynamic suffixes
+    # File extension may vary (e.g., .png, .txt), but pHash doesn't care
+    suffix = ".ph"
 
     @staticmethod
     def is_format_for(data: object) -> bool:

@@ -41,7 +41,7 @@ class PerceptualHashStorage(StorageProtocol):
         # (Pdb++) p file_path
         # PosixPath('/tmp/inline-snapshot-n1v6noil/tmp-path-bec195a3-9a6c-4a9a-bf72-7e7fa967c830')
         # For now just copy the file (cannot symlink, it gets resolved)
-        if file_path.suffix:
+        if file_path.suffix and file_path.suffix != ".ph":
             phash = self.finder.hash_image(file_path)
         else:
             tmp_with_ext = file_path.with_suffix(".png")
