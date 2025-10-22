@@ -1,4 +1,5 @@
 import shutil
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator, Iterator
@@ -32,16 +33,25 @@ class PerceptualHashStorage(StorageProtocol):
         """Compare by computing phash of other_value and checking against stored hash."""
         # Get the stored hash from the location stem
         stored_hash = location.stem
-        raise NotImplementedError("Phash storage compare method not implemented")
 
-        # Compute hash of the new value
-        # other_value should be a Path to an image file
-        if isinstance(other_value, Path):
+        # Handle bytes (from the format)
+        if isinstance(other_value, bytes):
+            # Write bytes to a temp file so we can hash it
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                tmp.write(other_value)
+                tmp_path = Path(tmp.name)
+
+            try:
+                new_hash = self.finder.hash_image(tmp_path)
+            finally:
+                tmp_path.unlink()
+
+        elif isinstance(other_value, Path):
+            # Direct path - can hash directly (not used any more)
             new_hash = self.finder.hash_image(other_value)
+
         else:
-            # Handle if it's raw bytes or needs temp file
-            # ...
-            pass
+            return False
 
         # Direct string comparison since hashes should match exactly
         return stored_hash == new_hash
