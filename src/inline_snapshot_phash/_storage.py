@@ -28,6 +28,24 @@ class PerceptualHashStorage(StorageProtocol):
         self.directory = Path(directory)
         self.finder = cz.ImageSimilarity()
 
+    def compare(self, location: ExternalLocation, other_value) -> bool:
+        """Compare by computing phash of other_value and checking against stored hash."""
+        # Get the stored hash from the location stem
+        stored_hash = location.stem
+        raise NotImplementedError("Phash storage compare method not implemented")
+
+        # Compute hash of the new value
+        # other_value should be a Path to an image file
+        if isinstance(other_value, Path):
+            new_hash = self.finder.hash_image(other_value)
+        else:
+            # Handle if it's raw bytes or needs temp file
+            # ...
+            pass
+
+        # Direct string comparison since hashes should match exactly
+        return stored_hash == new_hash
+
     def _ensure_directory(self):
         self.directory.mkdir(exist_ok=True, parents=True)
         gitignore = self.directory / ".gitignore"
