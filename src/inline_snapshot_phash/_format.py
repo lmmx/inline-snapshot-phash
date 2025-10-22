@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from inline_snapshot import Format, TextDiff, register_format
+from inline_snapshot import BinaryDiff, Format, register_format
 
 
 @register_format
-class PathFormat(TextDiff, Format[Path]):
+class ImageFormat(BinaryDiff, Format[bytes]):
     """Format handler for pathlib.Path objects."""
 
     # File extension may vary (e.g., .png, .txt), but pHash doesn't care
@@ -15,33 +15,15 @@ class PathFormat(TextDiff, Format[Path]):
 
     @staticmethod
     def is_format_for(data: object) -> bool:
-        """Match Path or str that points to an existing file."""
-        return isinstance(data, Path)
+        """Match bytes."""
+        return isinstance(data, bytes)
 
     @staticmethod
-    def encode(value: Path, path: Path):
+    def encode(value: bytes, path: Path):
         """Copy file contents into the snapshot file."""
-        if not value.exists():
-            raise FileNotFoundError(f"Cannot snapshot missing file: {value}")
-        data = value.read_bytes()
-        path.write_bytes(data)
+        path.write_bytes(value)
 
     @staticmethod
     def decode(path: Path) -> Path:
-        """Return the Path to the external snapshot file."""
-        return path
-
-    def rich_show(self, path: Path) -> str:
-        """Render a simple description in snapshot diffs."""
-        return f"[bold]{path.name}[/] ({path.stat().st_size} bytes)"
-
-    def rich_diff(self, original: Path, new: Path) -> str:
-        """Compare paths by size and modification time."""
-        o = original.stat()
-        n = new.stat()
-        changes = []
-        if o.st_size != n.st_size:
-            changes.append(f"size: {o.st_size} → {n.st_size}")
-        if int(o.st_mtime) != int(n.st_mtime):
-            changes.append("modified time differs")
-        return ", ".join(changes) or "files appear identical"
+        """Return the external snapshot file content bytes."""
+        return path.read_bytes()

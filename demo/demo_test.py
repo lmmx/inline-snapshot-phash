@@ -84,12 +84,12 @@ def checkerboard(tmp_path: Path) -> Path:
 
 def test_red_square(red_square: Path):
     """Basic usage: 100px red square gets a phash."""
-    assert red_square == external("phash:")
+    assert red_square.read_bytes() == external("phash:")
 
 
 def test_checkerboard(checkerboard: Path):
     """Different image gets different phash."""
-    assert checkerboard == external("phash:")
+    assert checkerboard.read_bytes() == external("phash:")
 
 
 def test_red_square_again(red_square_tiny: Path):
@@ -98,4 +98,5 @@ def test_red_square_again(red_square_tiny: Path):
     Note: either this test will save its output or the `test_red_square` snapshot will,
     not both! Since the hash matches, they get deduplicated and only saved to disk once.
     """
-    assert red_square_tiny == external("phash:")  # matches `test_red_square` snapshot
+    # matches `test_red_square` snapshot
+    assert red_square_tiny.read_bytes() == external("phash:")
