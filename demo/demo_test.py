@@ -84,7 +84,7 @@ def checkerboard(tmp_path: Path) -> Path:
 
 def test_red_square_one(red_square: Path):
     """Basic usage: 100px red square gets a phash."""
-    assert red_square.read_bytes() == external("phash:")
+    assert red_square.read_bytes() == external("phash:AAAAAAAAAAA.ph")
 
 
 def test_red_square_two(red_square_tiny: Path):
@@ -94,9 +94,9 @@ def test_red_square_two(red_square_tiny: Path):
     not both! Since the hash matches, they get deduplicated and only saved to disk once.
     """
     # matches `test_red_square_one` snapshot
-    assert red_square_tiny.read_bytes() == external("phash:")
+    assert red_square_tiny.read_bytes() == external("phash:AAAAAAAAAAA.ph")
 
 
 def test_checkerboard(checkerboard: Path):
     """Different image pattern gets different phash."""
-    assert checkerboard.read_bytes() == external("phash:")
+    assert checkerboard.read_bytes() == external("phash:pVqlWqVapVo.ph")
