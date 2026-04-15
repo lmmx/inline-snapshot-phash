@@ -43,7 +43,7 @@ Issues = "https://github.com/lmmx/inline-snapshot-phash/issues"
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
-    "pdbpp>=0.10.",
+    "pdbpp>=0.10",
 ]
 
 [tool.pytest.ini_options]
