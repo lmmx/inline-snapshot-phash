@@ -1,5 +1,5 @@
 publish *args:
-  $(uv python find) -m pdm publish -u __token__ -P $(keyring get PYPIRC_TOKEN "") {{args}}
+  uv publish -t $(keyring get PYPIRC_TOKEN "") {{args}}
 
 # Release a new version, pass --help for options to `uv version --bump`
 release bump_level="patch":

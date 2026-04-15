@@ -1,13 +1,13 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+build-backend = "uv_build"
+requires = ["uv_build>=0.11.6,<0.12"]
 
 [project]
 name = "inline-snapshot-phash"
 version = "0.1.2"
 description = "Perceptual hash storage protocol for inline-snapshot"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
   {name = "Louis Maddox", email = "louismmx@gmail.com"}
@@ -43,8 +43,7 @@ Issues = "https://github.com/lmmx/inline-snapshot-phash/issues"
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
-    "pdbpp>=0.10.3",
-    "pdm>=2.20.1",
+    "pdbpp>=0.10",
 ]
 
 [tool.pytest.ini_options]
@@ -52,7 +51,7 @@ testpaths = "tests"
 addopts = "-v"
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py39"
 
 [tool.uv]
-default-groups = ["dev"]
+default-groups = "all"
