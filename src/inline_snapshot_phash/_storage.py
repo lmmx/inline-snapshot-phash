@@ -1,8 +1,8 @@
 import shutil
 import tempfile
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Iterator
 
 try:
     import czkawka as cz
