@@ -5,7 +5,7 @@ from inline_snapshot._global_state import state
 from . import _format  # noqa: F401 (auto-register Path format)
 from ._storage import PerceptualHashStorage
 
-__all__ = ["register_phash_storage", "PerceptualHashStorage", "__version__"]
+__all__ = ["PerceptualHashStorage", "__version__", "register_phash_storage"]
 
 __version__ = "0.1.0"
 
