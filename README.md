@@ -49,6 +49,7 @@ Then use the `phash:` protocol in your tests:
 from pathlib import Path
 from inline_snapshot import external
 
+
 def test_image_output():
     output_path = generate_diagram()  # Returns Path to a .png file
     assert output_path == external("phash:")
@@ -128,10 +129,11 @@ Consider you have this code:
 
 ```python
 def test_1():
-   assert create_image1() == external("phash:1238abe.png")
+    assert create_image1() == external("phash:1238abe.png")
+
 
 def test_2():
-   assert create_image2() == external("phash:1238abe.png")
+    assert create_image2() == external("phash:1238abe.png")
 ```
 
 - Both `create_image` functions return similar images but not the exact same (they make the same phash)
